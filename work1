@@ -1,1 +1,326 @@
+Your company, Udasecurity, has created a home security application. This application tracks the status of sensors, monitors camera input, and changes the alarm state of the system based on inputs. Users can arm the system for when they’re home or away as well as disarm the system.
 
+The wild success of your application means that you have to prepare to scale your software. You’ll need to write unit tests for all of the major operations the application performs so that you can safely make more changes in the future. You also need to use maven to streamline the build process and automate your tests and code analysis. More urgently, you need to make sure your application actually does what it’s supposed to do, and writing thorough unit tests will help you find any bugs that already exist.
+
+The image analysis service used by this application has proven popular as well, and another team wants to use it in their project. To accomplish this, you must separate the Image Service from the program and package it as a separate module to be included both in your own project and in other projects.
+
+The end goal for this assignment is to split the project into multiple modules, refactor it to be unit-testable, write unit tests to cover all the main requirements for the Security portion of the application and fix any bugs that you find in the process. You’ll also update the build process to automatically run unit tests, perform static code analysis, and build the code into an executable jar file.
+
+Section 1: Update pom.xml with Missing Dependencies
+This app was initially built by including jar files for each dependency manually, but now we are modernizing the dependency management by using Maven to manage our dependencies and their versions for us.
+
+The project has already been moved into a maven file structure for you, but you’ll need to identify missing dependencies and add their artifacts to your pom.xml until you can run the project successfully. Look throughout the project directory in order to make sure you find and add all the appropriate dependencies.
+
+You'll know you've added all of the correct dependencies when the project runs without errors
+
+
+Splitting Up the Project
+Section 2: Split the Image Service into its Own Project
+Now that you have identified all the dependencies and can run the project, it’s time to split things up! Remember another team wants to use the Image Service in their project. To accomplish this, you must separate the Image Service from the program and package it as a separate module to be included both in your own project and in other projects
+
+Splitting Things Up
+Use either maven or your IDE to create a new maven project that will be the parent project for the two modules you will be creating.
+Inside of the parent project, create one module for your Security service and one module for your Image service. (Note: Use one parent pom at the top level and one child pom for each module.)
+Move all components into their proper modules.
+Update dependencies in the poms so that shared dependencies are in the parent pom, but unshared dependencies are in the child poms.
+Rubric Tip: There should not be any duplicate dependencies between the security service and the image service pom.xml in order to satisfy the rubric criteria, "Update pom.xml after separating project into module to move shared dependencies into the parent pom.xml".
+Use the pluginManagement tag in the parent pom to set the latest versions for the core plugins used by the maven lifecycle, such as the maven-compiler-plugin.
+Create a module descriptor for each package. You will have to provide the correct export and requires statements in each of these descriptors.
+Address transitive dependencies. Now that your project uses modules, you may need to open your packages to dependencies or explicitly include transitive dependencies that are required by your dependencies that do not declare them all in a modules-info.java. (Note: In particular, some amazon SDK dependencies do not provide modular jars but may require your project to reference the libraries they use. You might need to add requires statement to your modules-info.java to reference those dependencies. See this discussion thread on modularization of aws 2(opens in a new tab).)
+Make sure the project still runs!
+
+Unit Tests
+Section 3: Write Unit Tests and Refactor Project to Support Unit Tests
+In this section, you will write unit tests for the Security Service. Each of the requirements below should be verified by one or more unit tests. Make sure to put these unit tests in a new package that has the same name as the package containing the Security Service.
+
+You do NOT need to test the Image Service or the Repository, so you should use @Mocks to help substitute dependencies and keep the scope of each unit test narrow. You should use JUnit 5 features like @ParameterizedTest and ArgumentMatchers to ensure your tests cover branching conditions.
+
+Each of the requirements below should be verified by one or more unit tests. All of these test the Security Service, so make sure your tests don't depend on the implementation of the Repository or the Image Service. Remember, you can use Mocks to replace these services in your unit tests.
+
+You should also write interfaces to describe the necessary behaviors of your dependencies to make them easier to Mock. We’re already using a SecurityRepository interface, but we have no interface to describe the behavior of our Image Service. Create an interface that makes it easy to test our application regardless of whether we’re using the AwsImageService or FakeImageService. Remove references to the ImageService from the GUI and use the SecurityService to call the ImageService, so that you can mock the behavior of the ImageService.
+
+Optional Stand Out Task: Connect Your Project to the AWS Image Recognition Library
+Once you have created an interface for your image service, complete the steps described in the AwsImageService to create credentials and provide them in a properties file for your application. Change the ImageService implementation class in the CatpointGui class to use the AwsImageService instead of the FakeImageService. Try submitting different types of images and see what comes back!
+
+While you are writing tests, it's possible you may need to refactor the application in order to make all of the requirements testable. For example, parts of the business logic may be contained in the GUI or repository classes. You may have to move this logic into the security service to be tested.
+
+Remember, a failing unit test could mean one of two things:
+
+Your unit test is faulty.
+Something in your program isn't working.
+Some of these requirements might not be properly implemented, so, even if you write the correct unit test, it might still fail. You will fix any faulty or missing requirements in the next section.
+
+Application Requirements to Test:
+If alarm is armed and a sensor becomes activated, put the system into pending alarm status.
+If alarm is armed and a sensor becomes activated and the system is already pending alarm, set the alarm status to alarm.
+If pending alarm and all sensors are inactive, return to no alarm state.
+If alarm is active, change in sensor state should not affect the alarm state.
+If a sensor is activated while already active and the system is in pending state, change it to alarm state.
+If a sensor is deactivated while already inactive, make no changes to the alarm state.
+If the image service identifies an image containing a cat while the system is armed-home, put the system into alarm status.
+If the image service identifies an image that does not contain a cat, change the status to no alarm as long as the sensors are not active.
+If the system is disarmed, set the status to no alarm.
+If the system is armed, reset all sensors to inactive.
+If the system is armed-home while the camera shows a cat, set the alarm status to alarm.
+Reminder: If you find yourself relying on the behavior of another service, you may want to consider using a Mock!
+
+Rubric Tip: You must perform all the Application requirements correctly to pass the rubric item "Fix the application to correctly perform all the behaviors in the requirements list."
+
+Application Requirements Tip:
+
+Arm the system and activate two sensors; the system should go to the Alarm state. Then deactivate one sensor, and the system should not change the alarm state.
+Arm the system, scan a picture until it detects a cat, the system should go to ALARM state, scan a picture again until there is no cat, the system should go to NO ALARM state.
+Even when a cat is detected in the image, the system should go to the NO ALARM state when deactivated.
+Arm the system, scan a picture until it detects a cat, activate a sensor, and scan a picture again until there is no cat; the system should still be in the alarm state as there is a sensor active.
+Sensors were not reset to inactive when the system was armed: put all sensors to the active state when disarmed, then put the system in the armed state; sensors should be inactivated.
+Put the system as disarmed, scan a picture until it detects a cat after that, make it armed, it should make the system in the ALARM state.
+
+
+Fixing Bugs
+Section 4: Fix Any Bugs You Find With Your Unit Tests!
+As we stated in the previous section, a failing unit test could mean one of two things:
+
+Your unit test is faulty.
+Something in your program isn't working.
+Your task is to make sure all of the Application Requirements are properly implemented. Some requirements may not be performed and some bugs may produce unexpected behavior. After you fix any broken requirements, all of your unit tests should pass!
+
+Application Requirements to Test:
+If alarm is armed and a sensor becomes activated, put the system into pending alarm status.
+If alarm is armed and a sensor becomes activated and the system is already pending alarm, set the alarm status to alarm on. [This is the case where all sensors are deactivated and then one gets activated]
+If pending alarm and all sensors are inactive, return to no alarm state.
+If alarm is active, change in sensor state should not affect the alarm state.
+If a sensor is activated while already active and the system is in pending state, change it to alarm state. [This is the case where one sensor is already active and then another gets activated]
+If a sensor is deactivated while already inactive, make no changes to the alarm state.
+If the camera image contains a cat while the system is armed-home, put the system into alarm status.
+If the camera image does not contain a cat, change the status to no alarm as long as the sensors are not active.
+If the system is disarmed, set the status to no alarm.
+If the system is armed, reset all sensors to inactive.
+If the system is armed-home while the camera shows a cat, set the alarm status to alarm.
+Tips:
+
+Test 11: This behavior can be reproduced when the user is in the system as ARMED_AWAY or DISARMED. In this system, when the scan button is clicked after adding the cat image, the result comes out to be positive. After that, when changing to ARMED_HOME, the alarm status should change to ALARM.
+Test 10: The user can reproduce this behavior by activating some sensors, and after clicking on the ARMED_HOME or ARMED_AWAY button user will see that all sensors went to the inactive state.
+Test 4: The user can reproduce this behavior when at least two sensors are added. When going to the system in ARMED_HOME or ARMED_AWAY mode, if user activates the first sensor it causes the alarm to go to the PENDING_ALARM state, and when activating the second sensor, the system goes to the ALARM state. Now, any change in the sensor state should not change the status of the alarm from ALARM state. It makes sense because the system is already telling the user that they are in danger, so no change in sensors should stop this behavior.
+
+Unit Test Coverage
+Section 5: Check Unit Test Coverage
+Use IntelliJ to check code coverage. Our goal is to cover everything in the Security Service. Other teams will be maintaining our Image Service so we’ll focus strictly on the behavior of the Security Service.
+
+An image showing the security service has all classes, tested, 12 out of 18 methods tested, and 48 out of 58 lines of code tested.
+Using IntelliJ, We Scanned This Project to See Code Coverage.
+Note: This project tested all necessary methods, but your percentages may vary from this.
+
+Your goal is to provide full coverage of all methods that implement the application requirements. You don’t need to test trivial methods like getters or setters, but you do need to make sure that all the lines in your other methods are reachable by the unit tests.
+
+An image with the code hidden, but we can see green bars on the left that show all of the code has been tested.
+Looking to the Left, We Can See All of the Code Has Been Covered.
+
+Optional Stand Out Task: Integration Tests
+Create a FakeSecurityRepository class that works just like the PretendDatabaseSecurityRepository class (except without the property files). Create a second test class called SecurityServiceIntegrationTest.java and write methods that test our requirements as integration tests.
+
+These tests can call service methods and then use JUnit Assertions to verify that the values you retrieve after performing operations are the expected values.
+
+JAR and Static Analysis
+Section 6: Build the Application into an Executable JAR
+Update your pom.xml to use a maven plugin that allows you to compile your application into an executable JAR. Confirm that you can run the program by running the jar file. Execute the Maven goal that builds the JAR and start the application from the command line.
+
+Submit a screenshot titled executable_jar.png that shows you running the executable jar from the command line and the application launching. Use the command java -jar [yourjarname] to run it.
+
+This image shows the project being built into a JAR.
+You Will Need to Substitute the Name of Your File
+
+Section 7: Add Static Analysis to Build
+Add a Reporting tag to your pom that contains the spotbugs-maven-plugin and use it to generate a spotbugs.html report in your project’s /target/site directory.
+
+You should fix any of the errors it finds that are High priority. You are welcome, though not required, to address any other errors you find as well!
+
+Project: Udasecurity
+Code Functionality
+Criteria	Submission Requirements
+Write code that runs without errors
+
+You should submit a project that can compile and run without errors. After making all of the changes required for this project, you should still be able to launch the application, see the application GUI, and perform its operations without exceptions.
+
+Fix the application to correctly perform all the behaviors in the requirements list
+
+You will use your unit tests to find any missing or improperly implemented application requirements.
+
+Based on your unit test findings, make sure the application correctly implements all requirements.
+
+Note: Verify if all the application requirements mentioned in the classroom are performing correctly.
+
+Correct any High priority errors found by SpotBugs in your build report.
+
+After you’ve finished the building and compiling objectives, you should be able to view a list of bugs found by the SpotBugs plugin. If any of the bugs are High priority, you should fix them before submitting your project.
+
+Tip: After moving StyleService to the Security module, spotbugs should not report a HIGH priority issue. You should refactor the code until the HIGH priority issues are gone.
+
+(Optional) Switch image service implementation to use the AwsImageService
+
+Modify the dependencies injected in the main GUI class to create an instance of the AwsImageService instead of the FakeImageService.
+
+For this AwsImageService to work, you will need to create an IAM user with AWS Rekognition access and create a config.properties file in the src/main/resources directory of the ImageService module so the AwsImageService can connect. More instructions are in the AwsImageService.java file.
+
+Building and Compiling
+Criteria	Submission Requirements
+Add dependencies in pom.xml file
+
+Your starter project will be missing Maven dependencies. You must identify all missing dependencies and add them to the pom.xml file.
+
+Update pom.xml after separating project into module to move shared dependencies into the parent pom.xml
+
+The parent pom should not contain dependencies that are required by only one of the services.
+
+The same dependencies should not be found in multiple pom.xml files.
+
+You should be able to build the project by running the mvn compile command from the project parent directly. You should also be able to run the application main class from within IntelliJ.
+
+Note:
+
+Please make sure to add dependencies only to the modules that require that library.
+The parent POM should have only the dependencies required for all the modules.
+There shouldn't be any duplicate dependencies between the security service and the image service pom.xml
+Build project into executable JAR
+
+After separating the project into modules, you will need to build the project into an executable JAR. You should do this using a Maven Plugin.
+
+Submit a screenshot titled "executable_jar.png" that shows you running the executable jar from the command line and the application launching. Use the command java -jar [yourjarname] to run it.
+
+Configure the pluginmanagement section of the pom.xml to support our unit test libraries from maven.
+
+After separating your project into modules and writing your unit tests, you want to confirm that you can run the unit tests by executing the mvn test phase from the parent project directory.
+
+To do this, you will need to configure the maven-surefire-plugin to use the latest version and add a configuration element that specifies an argument that opens the test package of your module to all unnamed modules, so that Mockito can access your objects.
+
+For example:
+
+<configuration>
+ <argLine>
+   --add-opens [modulename]/[packagename]=ALL-UNNAMED
+ </argLine>
+</configuration>
+To complete this objective, you must run these tests by running the command mvn test from the directory containing the parent pom of your multi-module project and verify that your unit tests execute.
+
+Tip: Verify the module name specified at the maven-surefire-plugin configuration and configure maven-surefire-plugin with the argument that opens the test package so Mockito can access your objects.
+
+Configure the reporting section of the pom to run the spotbugs plugin.
+
+Create a reporting tag in the pom if it’s not already there and then add the spotbugs plugin. You should be able to run this plugin as part of your maven build process using the mvn install site command. If this executes successfully, you should find a file called spotbugs.html in the /target/site/ directory of your security module, which will identify any potential bugs found by the static analysis tool.
+
+You should include this spotbugs.html as part of your project submission.
+
+Modules
+Criteria	Submission Requirements
+Create a parent project with two modules: one for ImageService and one for SecurityService
+
+Both the ImageService and SecurityService should have their own module in the project structure. One way to do this is to create a parent project that contains two separate modules.
+
+You should separate the files in the starter project so that they are contained in the appropriate modules. The ImageService module should only contain classes specific to the image analysis, and everything else can go in the SecurityService module.
+
+Create a module descriptor for each module
+
+Each service's module descriptor should export any packages required by the other service and they should require the package from the other service that they need. Try to limit the scope of dependencies exchanged. Your image service should not require any packages from the security service, for example.
+
+Add dependencies and transitive dependencies to module descriptors
+
+Many of the maven dependencies used by this project will require your modules to specify which packages are required by the project, and so you must add requires statements to make those libraries available to your project. IntelliJ should be able to help you identify these missing requires statements.
+
+There may also be cases in which transitive dependencies are not properly declared by your source libraries, and so you may need to add requires statements to make these libraries available. A missing transitive dependency will usually produce a ClassNotFoundException when building, which you can resolve by requires [package containing the missing class].
+
+Lastly, you will need to open at least one package to reflection, because our fake repository implementation uses the Gson library to perform serialization through reflection. Open only the package necessary and limit the scope of your open package to the library that needs it.
+
+Note: You need to open the data package to the Gson library due to serialization issues.
+
+Unit Tests
+Criteria	Submission Requirements
+Create a unit test file for the Security Service
+
+You should create a class that contains unit tests for the SecurityService. This class should be called SecurityServiceTest.
+
+Make sure it's created in the correct scope and correct folder to test the Security Service. Use the maven directory structure convention for your tests directory and make sure the package name matches the package containing SecurityService.
+
+Write unit tests that test all application requirements are properly implemented by the SecurityService class.
+
+All of the requirements that are listed in the instructions should be tested. Our goal is specifically to test the SecurityService class, and so you should avoid writing unit tests that rely on the behavior of the Repository or ImageService.
+
+Each of the application requirements in the instructions should have at least one unit test that verifies that the application will perform this behavior. Some of them may require two or more tests to appropriately confirm the behavior of multiple scenarios or failure conditions.
+
+Write unit tests that provide coverage of all substantial methods in the SecurityService class
+
+You must have full coverage of methods that implement the application requirements.
+
+You don't need to write unit tests for trivial methods like getters or setters (e.g. getAlarmStatus), but IntelliJ code coverage should demonstrate that all methods with more than 1 line of code are tested by your unit tests.
+
+Furthermore, all the lines in these methods should be reachable by your tests, so make sure your unit tests explore all branching conditions.
+
+Tips: Partial Coverage of a multiline method is insufficient. You should not miss any branching conditions in the methods.
+
+Provide constructive unit test names
+
+Make sure that your unit test names communicate:
+
+What functionality the test is assessing
+The condition under test or the inputs to the test
+The expected output
+You should avoid using the word ‘test’ in your names as well, because this is redundant and you can use that space to communicate what the test does.
+
+Good test name examples:
+
+sensorActivated_alarmArmedAndStatusPending_alarmStatusAlarm
+imageAnalyzed_catDetectedAndStatusArmedHome_alarmStatusAlarm
+Bad test name examples:
+
+testSensorActivated
+requirement3
+Utilize the features of JUnit to simplify your unit tests
+
+At least one unit test should use Parameterized, and probably more than one. Any time you can identify multiple similar tests with slightly different input conditions, consider using Parameterized or Repeated tests to reduce the duplication.
+
+If you need to prepare commonly-used tested objects for each unit test, use the @BeforeEach annotation to reduce duplicated code. This is a great place to construct the SecurityService instance under test, as well as initialize any other commonly used variables.
+
+Test only the SecurityService
+
+Your units tests should only test the Security Service. Use the features of Mockito to mock the dependencies of SecurityService so that your unit tests do not rely on the ImageService or SecurityRepository functioning correctly.
+
+If certain functionality that you need to test is in other services or in the GUI, you will need to refactor your code to move the code that implements that functionality into the Security Service.
+
+Remember, if the image service or repository are broken, this should not break your unit tests as they only test the Security Service. You should create @Mock image service and repository using Mockito so that you can control their outputs in your unit tests.
+
+(Optional) Create integration tests
+
+Sometimes you may wish to test end-to-end functionality. However, our repository implementation doesn’t lend itself well toward testing, because it writes to local properties every time it is used. Create a FakeSecurityRepository class that works just like the PretendDatabaseSecurityRepository class except without the property files. Create a second test class called SecurityServiceIntegrationTest.java and write methods that test our requirements as integration tests.
+
+These tests can call service methods and then use JUnit Assertions to verify that the values you retrieve after performing operations are the expected values.
+
+Suggestions to Make Your Project Stand Out
+Write a unit test that uses a spy.
+
+Write integration tests that tests the interaction between multiple services. (i.e. Write a test that confirms if you change the UI that the database gets updated correctly.) Note: Create a "fake" repository instance so you can test the interaction between the Service class and a repository.
+
+Replace the FakeImageService with the AwsImageService so you can actually scan images for cats!
+
+Project: Udasecurity
+Past Due on April 09, 2025
+Project Submission
+For your submission, please submit the following:
+
+Completed project code should be uploaded either to GitHub or a .zip file. Make sure to include the entire project folder.
+Double-Check the Rubric
+Make sure you have completed all the rubric items here(opens in a new tab).
+
+Submit your Project
+You can submit your project by uploading a zip file or selecting your GitHub repo.
+
+Project Submission Checklist
+Before submitting your project, please review and confirm the following items.
+
+I am confident all rubric items have been met and my project will pass as submitted. (If not, I will discuss with my mentor prior to submitting.)
+
+Project builds correctly without errors and runs.
+
+All required functionality exists and my project behaves as expected per the project's specifications.
+
+Once you have checked all these items, you are ready to submit!
+
+How would you like to submit your project?
+Select Submission Type
