@@ -1,3 +1,9 @@
+
+
+
+
+
+
 Critter Chronologer
 Design and implement the data model for Critter Chronologer, a Software as a Service application that provides a scheduling interface for a small business that takes care of animals. This Spring Boot project will allow users to create pets, owners, and employees, and then schedule events for employees to provide services for pets.
 
@@ -177,3 +183,6 @@ It may be possible to replace some or all DTOs by using JSONView and JSONIgnore 
 Add support for custom behaviors for Pets, or maybe a way to specify which activities are relevant to which type of pet. Can you implement this solution in a way that allows you to add new pets or change pet behavior without modifying code each time?
 Create new endpoints that complete the rest of the missing CRUD operations and support them on the back end. Or come up with additional data about your Entities that may be relevant and write queries to reference it.
 Add support for Schedules that include a startTime and endTime. Add a query that can find an open employee for a specific timeslot during the day.
+
+https://tests.mettl.com/authenticateKey/87qxujku0w
+
