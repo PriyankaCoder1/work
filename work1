@@ -1,1 +1,179 @@
+Critter Chronologer
+Design and implement the data model for Critter Chronologer, a Software as a Service application that provides a scheduling interface for a small business that takes care of animals. This Spring Boot project will allow users to create pets, owners, and employees, and then schedule events for employees to provide services for pets.
 
+An orange cat looking at a watch.
+"Is it time for my appointment yet?"
+
+Starter Code
+You can access and download the starter code here(opens in a new tab). Instructions for setting up your system for the project are included in the project README(opens in a new tab).
+
+Task 1: Configure Properties
+The starter project contains a blank application.properties file. Provide the appropriate connection url and credentials for Spring to configure your external db as the primary data source. If you want Spring to automatically generate schema for you, set values for initialization-mode and ddl-auto to customize the way Spring generates or updates your schema.
+
+Task 2: Configure Unit Tests
+Create a new application.properties file in your test/resources directory and configure it to use an H2 in-memory database for unit tests. The starter project includes a set of functional tests to help you make sure you’ve met the requirements. More information can be found about the unit tests and how to run them in the Testing section of the README(opens in a new tab). They will fail for now because the starter project controller methods are incomplete, but you can use them to check your progress as you go.
+
+The starter project also includes a Postman collection under src/main/resource/Udacity.postman_collection.json. Importing this collection into the Postman application will provide you with a variety of requests you can submit. You should use them to confirm functionality of your external data source as you work. You will also find information about the Postman collection in the project README(opens in a new tab).
+
+A successful Postman request
+A successful Postman request
+
+Task 3: Design Entities To Represent Your Data
+You’ll need to decide how to persist your information. To complete this project, you will need to store the following:
+
+Two different kinds of users - Employees and Customers.
+Any type of pet, such as cats, dogs, lizards, hedgehogs, toucans, etc. We don't want to discriminate against owners of odd pets!
+Schedules that indicate one or more employees will be meeting one or more pets to perform one or more activities on a specific day.
+As you consider your design, think about how you want these entities to be stored in your database. Be deliberate about whether you are representing data via inheritance or composition and use the tools that Spring and Hibernate provide to create the appropriate tables to relate your data. Remember that the Data Transfer Objects represent the structure of request and response data, but do not have to represent the structure of your persistence model. The Data Transfer Objects are represented by the [NAME]DTO.java files in the starter code.
+
+Task 4: Create Tables in your Database
+There are a variety of ways to create the tables your program will use. Hibernate can automatically generate them when you launch the application, or you may use a schema.sql to manually define and create the tables. Automatic generation is a simpler, quicker solution and recommended for this project. Just as some of your furry clients would choose to Hibernate, we suggest the same! That being said, you may choose any method you wish.
+
+Once your tables are constructed, review the schema in MySQL workbench or in another tool of your choice. Hibernate’s HQL and Spring Data’s JPQL allow you to work with Java objects, but it’s still useful to look at the SQL schema verify your Entity design produces the type of tables you want.
+
+Task 5: Create a Data Access Layer
+It’s important to isolate requests to the database from the business logic of our application in order to minimize the impact of changes. In other words, we want a pet door to let your marmot, wombat, and capybara reach the database while keeping your product owner out. There are a variety of ways to do this. You can use the Data Access Object pattern, Spring Data Repositories, or some combination thereof to create a single DAO or Repository for each type of Entity you created in the previous step. These will handle persistence requests pertaining to those Entities.
+
+For this project, you may elect to use any of the persistence strategies discussed in this course. That could mean using a JdbcTemplate to execute native queries, using Hibernate and EntityManager, or using Spring Data JPA. Regardless of your approach, be sure to encapsulate persistence logic inside your Data layer.
+
+Task 6: Create a Service Layer
+This project is designed so that the majority of the work can be performed by the Data layer, but you still need another layer that can combine calls to multiple DAOs or Repositories. Create Service objects that can handle requests from the Controller layer and make the appropriate calls to the Data layer. Avoid exposing the starter code’s DTO objects to your Service layer. The Service layer should work with Entities or primitives, but not DTOs.
+
+Task 7: Update the Controller to use Services
+Inject Service references into the provided Controller classes and use those Services to complete the methods in the Controller. Once you have completed each request, test it using the JUnit tests and Postman.
+
+Task 8: Review and Refactor
+Your project should now support the following workflow:
+
+Create a new customer.
+Create a pet for that customer.
+Create an employee.
+Update the employee’s schedule.
+Find out which employees with the right skills are available on a given date.
+Schedule one or more employees to do a set of activities with one or more pets.
+Look up currently scheduled events for an employee, a pet, or a customer.
+An orange, fluffy cat smelling a watch.
+"Smells like a well-factored program!"
+
+If you can do all these things, you should be able to send all the requests from the Postman collection, and your unit tests should pass.
+
+Once both of these things are working, take another pass through your project and look for opportunities to clean things up. Do you need to add comments? Are you handling exceptional cases? Would anything be easier if you changed your data model? Do you have clear separation between your layers? Is there any functionality not requested by the Controllers that would be nice to add?
+
+Project Workspace
+Project Workspace
+
+You can use the project workspace to complete all exercise activities and save your files. The workspace already has Java, PostgreSQL and Visual Studio Code installed.
+
+To validate the Java version, use the command:
+
+java --version
+To access PostgreSQL using terminal, use the command:
+
+psql -h localhost -U postgres postgres, where -U postgres is the username and postgres is the passw
+
+
+Project: Critter Chronologer
+Section 1: Connect Application and Unit Tests to Datasources
+Criteria	Submission Requirements
+Connect applications to external MySQL database
+
+src/main/resources/application.properties file contains entries specifying the datasource url and user credentials.
+
+Connect unit tests to internal H2 database
+
+src/test/resources/application.properties file contains entries specifying the internal h2 url and credentials.
+
+Initialize DataSources from within Spring
+
+Tables are created in a schema.sql or the application.properties file specifies an initialization mode and ddl-auto.
+
+Section 2: Design Data Layer
+Criteria	Submission Requirements
+Create Entities that represent the storage needs of the application
+
+Each Entity should represent a single, coherent data type. This project will require Entities that represent multiple types of pets, both customer and employee users, and schedules that associate pets and employees. This will require at least three Entity classes and perhaps more, depending on which strategies for managing complex or polymorphic types are chosen.
+
+Relationships between Entities should be clear from the Entity design. Entities that contain references to multiple objects of the same type should represent that relationship with collection classes, not by packing multiple values into a single field, such as a delimited String or bit-packed integer.
+
+If polymorphic types are used, be sure to consider which table mapping strategy you wish to use and comment in the respective Entity classes why you’ve chosen a particular strategy.
+
+Create components to access the data source
+
+The application should either use the DAO pattern or Repository pattern to isolate access to your data source. You should have one DAO or Repository for each Entity you define and that component will expose CRUD operations to the rest of the program.
+
+A DAO or Repository can handle complex query operation, but should not combine multiple separate actions into a single call.
+
+Choose appropriate data types
+
+When considering data that can be represented by a variety of types, prefer choices that maximize clarity and limit the potential for invalid data.
+
+Date vs. DateTime vs. Time - Do not store date or time information unrelated to the requirements of that field.
+Set vs. List - Select collections that match your constraints, such as uniqueness.
+Enum vs. String constant vs. int constant - Where possible, prefer Enum representation in Java to maximize compiler assistance. SQL representation is up to you.
+Additionally, consider both the current and long term needs of the data and choose data types that will be resilient to change without being inefficient.
+
+Long vs Int - Generally longs for ids and ints for everything else is fine, but always consider the ranges for your values
+SQL Column width - Large widths don’t cost anything if unused, so avoid imposing narrow width restrictions on fields that could occasionally be long, like name. Restrict width on fields you know will always have a finite length and increase width on fields that you want to allow more than the default (255 for hibernate).
+Set Transaction Boundaries
+
+Individual SQL request are already transactional, but any part of your program that initiates a database request should start a transaction before taking steps that can cause failure. For most projects, a sensible transaction boundary will likely occur at the Service layer. You can begin transactions by annotating the methods @Transactional, or you can specify an entire class as @Transactional to mark all methods transactional.
+
+If you wish to use the EntityManager to manually start and end transactions you may, but be sure to minimize the scope of each method to limit the necessity.
+
+Section 3: Multilayer Architecture
+Criteria	Submission Requirements
+Transform Entity Data into DTOs
+
+The output from your Data layer is in a format suitable for use by the rest of the application, but not necessarily the format you want to provide to consumers of your REST endpoints.
+
+For the purpose of this program, a number of pre-made DTOs have been provided to demonstrate the requirements of the front end without implying the structure of data on the back end. DTO needs will vary by consumer, but for the purpose of this program you will need to convert your Entity data back into the provided DTO format.
+
+This mapping should happen either in the DTO itself or in the Controller layer, so that the Service layer does not need to know anything about DTO structure. It should not happen in the Service layer. Feel free to use Spring utilities such as BeanUtils.copyProperties to facilitate copying properties of the same name between objects.
+
+If you’re feeling adventurous, check out the Stand Out Suggestions #2 and replace some of the DTOs with the original Entities annotated using JSONView and JSONIgnore. Many applications will create DTOs for large transformations but expose annotated Entities for scenarios where little or no transformation is necessary. Note that this approach may require updates to the unit tests.
+
+Separate Domain Logic from Persistence Layer
+
+Partition your logic into these layers:
+
+Service Layer retrieves information from one or more data sources. It can handle coordination between multiple data sources to solve multi-step problems
+Data Layer modifies or returns Entities. It can join tables to aggregate data across multiple Entity types but should avoid performing multiple operations in a single request.
+For example, if you wanted to modify an incoming Schedule request if it occurs on the same date as a Pet’s birthday, you would do this in the Service layer by first looking up the Pet and then modifying and saving the Schedule.
+
+However, if you wanted to find all pets who had an event scheduled on their birthday, this would make more sense as a single query, rather than having the Service layer request all Schedules and compare dates itself.
+
+Validation should occur in the Service layer rather than the Data layer, so rather than writing a query that will fail for invalid data, it is better to handle or throw an exception from the Service layer.
+
+Do not put any domain logic into the Controller layer.
+
+DAO or Repository objects focus on their own Entities
+
+Repositories should return objects of their own Entity type. For example, you would expect a “findPetsByOwner” query in the Pet Repository, rather than creating a method in a User or Customer Repository that looks up a customer then returns the Pets associated with it.
+
+While the Data layer can join and sometimes even modify other tables, the primary focus should be on the Entity it manages. In this project, every method that returns an Entity or List of Entities from the data layer should exist in the DAO or Repository of the same name as that Entity.
+
+Section 4: Workflow Functionality
+Criteria	Submission Requirements
+Write code that passes all unit tests
+
+All original unit tests must all pass. You can write your own, but you will only be evaluated on the passing of:
+
+testCreateCustomer
+testCreateEmployee
+testAddPetsToCustomer
+testFindPetsByOwner
+testFindOwnerByPet
+testChangeEmployeeAvailability
+testFindEmployeesByServiceAndTime
+testSchedulePetsForServiceWithEmployee
+testFindScheduleByEntities
+Write code that allows all requests in the included Postman collection to execute
+
+All the requests in the Postman collection can be run and return correct information based on the data requested.
+
+Suggestions to Make Your Project Stand Out
+Add additional validations. Can you prevent requests from creating invalid schedules? Avoid detached Pets with no owners?
+It may be possible to replace some or all DTOs by using JSONView and JSONIgnore annotations. Can you replace the DTO objects without compromising encapsulation between the data layer and the controller layer? Watch out for lazy loading of collections!
+Add support for custom behaviors for Pets, or maybe a way to specify which activities are relevant to which type of pet. Can you implement this solution in a way that allows you to add new pets or change pet behavior without modifying code each time?
+Create new endpoints that complete the rest of the missing CRUD operations and support them on the back end. Or come up with additional data about your Entities that may be relevant and write queries to reference it.
+Add support for Schedules that include a startTime and endTime. Add a query that can find an open employee for a specific timeslot during the day.
